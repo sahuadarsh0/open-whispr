@@ -226,6 +226,8 @@ declare global {
 
       // App management
       appQuit: () => Promise<void>;
+      getAutoLaunch: () => Promise<boolean>;
+      setAutoLaunch: (enabled: boolean) => Promise<{ success: boolean }>;
       cleanupApp: () => Promise<{ success: boolean; message: string }>;
       getTranscriptionHistory: () => Promise<any[]>;
       clearTranscriptionHistory: () => Promise<void>;

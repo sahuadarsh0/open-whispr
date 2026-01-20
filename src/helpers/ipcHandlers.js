@@ -66,6 +66,18 @@ class IPCHandlers {
       return { success: true };
     });
 
+    ipcMain.handle("get-auto-launch", () => {
+      return app.getLoginItemSettings().openAtLogin;
+    });
+
+    ipcMain.handle("set-auto-launch", (event, enabled) => {
+      app.setLoginItemSettings({
+        openAtLogin: enabled,
+        openAsHidden: true, // Optional: start hidden in tray
+      });
+      return { success: true };
+    });
+
     // Environment handlers
     ipcMain.handle("get-openai-key", async (event) => {
       return this.environmentManager.getOpenAIKey();
@@ -520,8 +532,8 @@ class IPCHandlers {
             }
             throw new Error(
               errorData.error?.message ||
-                errorData.error ||
-                `Anthropic API error: ${response.status}`
+              errorData.error ||
+              `Anthropic API error: ${response.status}`
             );
           }
 

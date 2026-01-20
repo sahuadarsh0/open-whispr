@@ -85,6 +85,7 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
   } = useSettings();
 
   const [currentVersion, setCurrentVersion] = useState<string>("");
+  const [startAtLogin, setStartAtLogin] = useState(false);
   const [isRemovingModels, setIsRemovingModels] = useState(false);
   const cachePathHint =
     typeof navigator !== "undefined" && /Windows/i.test(navigator.userAgent)
@@ -139,6 +140,14 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
       if (version && mounted) setCurrentVersion(version);
 
       if (mounted) {
+        // Fetch auto-launch status
+        try {
+          const autoLaunch = await window.electronAPI.getAutoLaunch();
+          setStartAtLogin(autoLaunch);
+        } catch (e) {
+          console.error("Failed to fetch auto-launch status:", e);
+        }
+
         whisperHook.checkWhisperInstallation();
       }
     }, 100);
@@ -255,9 +264,25 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">App Updates</h3>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-gray-600 mb-3">
                   Keep OpenWhispr up to date with the latest features and improvements.
                 </p>
+                <div className="flex items-center space-x-2 mt-4 mb-4">
+                  <input
+                    type="checkbox"
+                    id="startAtLogin"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    checked={startAtLogin}
+                    onChange={(e) => {
+                      const enabled = e.target.checked;
+                      setStartAtLogin(enabled);
+                      window.electronAPI.setAutoLaunch(enabled);
+                    }}
+                  />
+                  <label htmlFor="startAtLogin" className="text-sm font-medium text-gray-700">
+                    Start OpenWhispr at login
+                  </label>
+                </div>
               </div>
               <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg">
                 <div>
