@@ -2,6 +2,6 @@ export const hasStoredByokKey = () =>
   !!(
     localStorage.getItem("openaiApiKey") ||
     localStorage.getItem("groqApiKey") ||
-    localStorage.getItem("mistralApiKey") ||
+    localStorage.getItem("geminiApiKey") ||
     localStorage.getItem("customTranscriptionApiKey")
   );

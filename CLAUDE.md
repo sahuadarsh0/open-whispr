@@ -244,7 +244,7 @@ Environment variables persisted to `.env` (via `saveAllKeysToEnvFile()`):
     - Gemini 2.5 Pro (`gemini-2.5-pro`) - Most capable Gemini model
     - Gemini 2.5 Flash (`gemini-2.5-flash`) - High-performance with thinking
     - Gemini 2.5 Flash Lite (`gemini-2.5-flash-lite`) - Lowest latency and cost
-    - Gemini 2.0 Flash (`gemini-2.0-flash`) - Fast, long-context option
+    - Gemini 3.0 Flash (`gemini-3.0-flash`) - Fast, long-context option
   - **Local**: GGUF models via llama.cpp (Qwen, Llama, Mistral, GPT-OSS)
 
 ### 8. Model Registry Architecture

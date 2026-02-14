@@ -1174,7 +1174,7 @@
         "openai_gpt_4o_transcribe": "Transcrição mais precisa",
         "openai_whisper_1": "Modelo Whisper original",
         "groq_whisper_large_v3_turbo": "Velocidade 216x em tempo real",
-        "mistral_voxtral_mini_latest": "Transcrição multilíngue rápida"
+        "gemini_gemini_3_0_flash": "Transcrição multilíngue rápida"
       },
       "cloud": {
         "openai_gpt_5_2": "Modelo principal de raciocínio mais recente",

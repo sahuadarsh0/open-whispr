@@ -1203,7 +1203,7 @@
         "openai_gpt_4o_transcribe": "Максимально точная транскрипция",
         "openai_whisper_1": "Оригинальная модель Whisper",
         "groq_whisper_large_v3_turbo": "Скорость в 216 раз быстрее реального времени",
-        "mistral_voxtral_mini_latest": "Быстрая многоязычная транскрипция"
+        "gemini_gemini_3_0_flash": "Быстрая многоязычная транскрипция"
       },
       "cloud": {
         "openai_gpt_5_2": "Новейшая флагманская модель с рассуждением",

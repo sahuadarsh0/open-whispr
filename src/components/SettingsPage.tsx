@@ -148,8 +148,8 @@ interface TranscriptionSectionProps {
   setOpenaiApiKey: (key: string) => void;
   groqApiKey: string;
   setGroqApiKey: (key: string) => void;
-  mistralApiKey: string;
-  setMistralApiKey: (key: string) => void;
+  geminiApiKey: string;
+  setGeminiApiKey: (key: string) => void;
   customTranscriptionApiKey: string;
   setCustomTranscriptionApiKey: (key: string) => void;
   cloudTranscriptionBaseUrl?: string;
@@ -183,8 +183,8 @@ function TranscriptionSection({
   setOpenaiApiKey,
   groqApiKey,
   setGroqApiKey,
-  mistralApiKey,
-  setMistralApiKey,
+  geminiApiKey,
+  setGeminiApiKey,
   customTranscriptionApiKey,
   setCustomTranscriptionApiKey,
   cloudTranscriptionBaseUrl,
@@ -359,8 +359,8 @@ function TranscriptionSection({
           setOpenaiApiKey={setOpenaiApiKey}
           groqApiKey={groqApiKey}
           setGroqApiKey={setGroqApiKey}
-          mistralApiKey={mistralApiKey}
-          setMistralApiKey={setMistralApiKey}
+          geminiApiKey={geminiApiKey}
+          setGeminiApiKey={setGeminiApiKey}
           customTranscriptionApiKey={customTranscriptionApiKey}
           setCustomTranscriptionApiKey={setCustomTranscriptionApiKey}
           cloudTranscriptionBaseUrl={cloudTranscriptionBaseUrl}
@@ -634,7 +634,6 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
     anthropicApiKey,
     geminiApiKey,
     groqApiKey,
-    mistralApiKey,
     dictationKey,
     activationMode,
     setActivationMode,
@@ -659,7 +658,6 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
     setAnthropicApiKey,
     setGeminiApiKey,
     setGroqApiKey,
-    setMistralApiKey,
     customTranscriptionApiKey,
     setCustomTranscriptionApiKey,
     customReasoningApiKey,
@@ -1710,8 +1708,8 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
             setOpenaiApiKey={setOpenaiApiKey}
             groqApiKey={groqApiKey}
             setGroqApiKey={setGroqApiKey}
-            mistralApiKey={mistralApiKey}
-            setMistralApiKey={setMistralApiKey}
+            geminiApiKey={geminiApiKey}
+            setGeminiApiKey={setGeminiApiKey}
             customTranscriptionApiKey={customTranscriptionApiKey}
             setCustomTranscriptionApiKey={setCustomTranscriptionApiKey}
             cloudTranscriptionBaseUrl={cloudTranscriptionBaseUrl}

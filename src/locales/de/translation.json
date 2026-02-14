@@ -1202,7 +1202,7 @@
         "openai_gpt_4o_transcribe": "Genaueste Transkription",
         "openai_whisper_1": "Originales Whisper-Modell",
         "groq_whisper_large_v3_turbo": "216x Echtzeitgeschwindigkeit",
-        "mistral_voxtral_mini_latest": "Schnelle mehrsprachige Transkription"
+        "gemini_gemini_3_0_flash": "Schnelle mehrsprachige Transkription"
       },
       "cloud": {
         "openai_gpt_5_2": "Neuestes Flaggschiff-Modell für Reasoning",

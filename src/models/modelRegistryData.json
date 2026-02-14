@@ -142,15 +142,15 @@
       ]
     },
     {
-      "id": "mistral",
-      "name": "Mistral",
-      "baseUrl": "https://api.mistral.ai/v1",
+      "id": "gemini",
+      "name": "Gemini",
+      "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
       "models": [
         {
-          "id": "voxtral-mini-latest",
-          "name": "Voxtral Mini",
+          "id": "gemini-3-flash-preview",
+          "name": "Gemini 3.0 Flash",
           "description": "Fast multilingual transcription",
-          "descriptionKey": "models.descriptions.transcription.mistral_voxtral_mini_latest"
+          "descriptionKey": "models.descriptions.transcription.gemini_gemini_3_0_flash"
         }
       ]
     }

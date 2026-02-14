@@ -365,11 +365,12 @@ declare global {
       // Mistral API key management
       getMistralKey: () => Promise<string | null>;
       saveMistralKey: (key: string) => Promise<void>;
-      proxyMistralTranscription: (data: {
+      proxyGeminiTranscription: (data: {
         audioBuffer: ArrayBuffer;
+        mimeType?: string;
         model?: string;
         language?: string;
-        contextBias?: string[];
+        dictionaryPrompt?: string;
       }) => Promise<{ text: string }>;
 
       // Custom endpoint API keys

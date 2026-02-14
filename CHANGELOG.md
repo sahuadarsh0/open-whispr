@@ -758,7 +758,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - o-series (o3/o3-pro/o4-mini) - Advanced reasoning models with extended thinking time
     - GPT-4o/4o-mini - Multimodal models with vision support
   - Anthropic: Claude Opus 4.1, Sonnet 4, and 3.5 variants for frontier intelligence
-  - Google: Gemini 2.5 Pro/Flash/Flash-Lite and 2.0 Flash for advanced processing
+  - Google: Gemini 3.5 Pro/Flash/Flash-Lite and 3.0 Flash for advanced processing
 - **OpenAI Responses API Integration**: Migrated from Chat Completions to the new Responses API
   - Simplified request format with `input` array instead of `messages`
   - New response parsing for `output` items with typed content

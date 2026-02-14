@@ -13,7 +13,7 @@ const REASONING_CACHE_TTL = 30000; // 30 seconds
 const PLACEHOLDER_KEYS = {
   openai: "your_openai_api_key_here",
   groq: "your_groq_api_key_here",
-  mistral: "your_mistral_api_key_here",
+  gemini: "your_gemini_api_key_here",
 };
 
 const isValidApiKey = (key, provider = "openai") => {
@@ -630,15 +630,15 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       if (!apiKey) {
         apiKey = null;
       }
-    } else if (provider === "mistral") {
+    } else if (provider === "gemini") {
       // Prefer localStorage (user-entered via UI) over main process (.env)
       // to avoid stale keys in process.env after auth mode transitions
-      apiKey = localStorage.getItem("mistralApiKey");
-      if (!isValidApiKey(apiKey, "mistral")) {
-        apiKey = await window.electronAPI.getMistralKey?.();
+      apiKey = localStorage.getItem("geminiApiKey");
+      if (!isValidApiKey(apiKey, "gemini")) {
+        apiKey = await window.electronAPI.getGeminiKey?.();
       }
-      if (!isValidApiKey(apiKey, "mistral")) {
-        throw new Error("Mistral API key not found. Please set your API key in the Control Panel.");
+      if (!isValidApiKey(apiKey, "gemini")) {
+        throw new Error("Gemini API key not found. Please set your API key in the Control Panel.");
       }
     } else if (provider === "groq") {
       // Prefer localStorage (user-entered via UI) over main process (.env)
@@ -1278,46 +1278,44 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         formData.append("stream", "true");
       }
 
-      const endpoint = this.getTranscriptionEndpoint();
-      const isCustomEndpoint =
-        provider === "custom" ||
-        (!endpoint.includes("api.openai.com") &&
-          !endpoint.includes("api.groq.com") &&
-          !endpoint.includes("api.mistral.ai"));
-
       const apiCallStart = performance.now();
 
-      // Mistral uses x-api-key auth (not Bearer) and doesn't allow browser CORS — proxy through main process
-      if (provider === "mistral" && window.electronAPI?.proxyMistralTranscription) {
-        const audioBuffer = await optimizedAudio.arrayBuffer();
-        const proxyData = { audioBuffer, model, language };
-
-        if (dictionaryPrompt) {
-          const tokens = dictionaryPrompt
-            .split(",")
-            .flatMap((entry) => entry.trim().split(/\s+/))
-            .filter(Boolean)
-            .slice(0, 100);
-          if (tokens.length > 0) {
-            proxyData.contextBias = tokens;
-          }
+      // Gemini transcription uses generateContent with inline audio and may require main-process proxy.
+      if (provider === "gemini") {
+        if (!window.electronAPI?.proxyGeminiTranscription) {
+          throw new Error("Gemini transcription bridge is unavailable. Please restart OpenWhispr.");
         }
+        const audioBuffer = await optimizedAudio.arrayBuffer();
+        const proxyData = {
+          audioBuffer,
+          mimeType,
+          model,
+          language,
+          dictionaryPrompt,
+        };
 
-        const result = await window.electronAPI.proxyMistralTranscription(proxyData);
+        const result = await window.electronAPI.proxyGeminiTranscription(proxyData);
         const proxyText = result?.text;
 
         if (proxyText && proxyText.trim().length > 0) {
           timings.transcriptionProcessingDurationMs = Math.round(performance.now() - apiCallStart);
           const reasoningStart = performance.now();
-          const text = await this.processTranscription(proxyText, "mistral");
+          const text = await this.processTranscription(proxyText, "gemini");
           timings.reasoningProcessingDurationMs = Math.round(performance.now() - reasoningStart);
 
-          const source = (await this.isReasoningAvailable()) ? "mistral-reasoned" : "mistral";
+          const source = (await this.isReasoningAvailable()) ? "gemini-reasoned" : "gemini";
           return { success: true, text, source, timings };
         }
 
-        throw new Error("No text transcribed - Mistral response was empty");
+        throw new Error("No text transcribed - Gemini response was empty");
       }
+
+      const endpoint = this.getTranscriptionEndpoint();
+      const isCustomEndpoint =
+        provider === "custom" ||
+        (!endpoint.includes("api.openai.com") &&
+          !endpoint.includes("api.groq.com") &&
+          !endpoint.includes("generativelanguage.googleapis.com"));
 
       logger.debug(
         "Making transcription API request",
@@ -1543,7 +1541,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       if (trimmedModel) {
         const isGroqModel = trimmedModel.startsWith("whisper-large-v3");
         const isOpenAIModel = trimmedModel.startsWith("gpt-4o") || trimmedModel === "whisper-1";
-        const isMistralModel = trimmedModel.startsWith("voxtral-");
+        const isGeminiModel = trimmedModel.startsWith("gemini-");
 
         if (provider === "groq" && isGroqModel) {
           return trimmedModel;
@@ -1551,7 +1549,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         if (provider === "openai" && isOpenAIModel) {
           return trimmedModel;
         }
-        if (provider === "mistral" && isMistralModel) {
+        if (provider === "gemini" && isGeminiModel) {
           return trimmedModel;
         }
         // Model doesn't match provider - fall through to default
@@ -1559,7 +1557,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
       // Return provider-appropriate default
       if (provider === "groq") return "whisper-large-v3-turbo";
-      if (provider === "mistral") return "voxtral-mini-latest";
+      if (provider === "gemini") return "gemini-3.0-flash";
       return "gpt-4o-mini-transcribe";
     } catch (error) {
       return "gpt-4o-mini-transcribe";
@@ -1610,8 +1608,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         base = currentBaseUrl.trim() || API_ENDPOINTS.TRANSCRIPTION_BASE;
       } else if (currentProvider === "groq") {
         base = API_ENDPOINTS.GROQ_BASE;
-      } else if (currentProvider === "mistral") {
-        base = API_ENDPOINTS.MISTRAL_BASE;
+      } else if (currentProvider === "gemini") {
+        base = API_ENDPOINTS.GEMINI;
       } else {
         // OpenAI or other standard providers
         base = API_ENDPOINTS.TRANSCRIPTION_BASE;

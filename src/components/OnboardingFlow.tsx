@@ -79,7 +79,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     cloudTranscriptionBaseUrl,
     openaiApiKey,
     groqApiKey,
-    mistralApiKey,
+    geminiApiKey,
     customTranscriptionApiKey,
     setCustomTranscriptionApiKey,
     dictationKey,
@@ -88,7 +88,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     setDictationKey,
     setOpenaiApiKey,
     setGroqApiKey,
-    setMistralApiKey,
+    setGeminiApiKey,
     updateTranscriptionSettings,
     preferredLanguage,
   } = useSettings();
@@ -463,8 +463,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               setOpenaiApiKey={setOpenaiApiKey}
               groqApiKey={groqApiKey}
               setGroqApiKey={setGroqApiKey}
-              mistralApiKey={mistralApiKey}
-              setMistralApiKey={setMistralApiKey}
+              geminiApiKey={geminiApiKey}
+              setGeminiApiKey={setGeminiApiKey}
               customTranscriptionApiKey={customTranscriptionApiKey}
               setCustomTranscriptionApiKey={setCustomTranscriptionApiKey}
               cloudTranscriptionBaseUrl={cloudTranscriptionBaseUrl}
@@ -673,6 +673,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             return openaiApiKey.trim().length > 0;
           } else if (cloudTranscriptionProvider === "groq") {
             return groqApiKey.trim().length > 0;
+          } else if (cloudTranscriptionProvider === "gemini") {
+            return geminiApiKey.trim().length > 0;
           } else if (cloudTranscriptionProvider === "custom") {
             // Custom can work without API key for local endpoints
             return true;

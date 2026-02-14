@@ -1202,7 +1202,7 @@
         "openai_gpt_4o_transcribe": "最も正確な文字起こし",
         "openai_whisper_1": "オリジナル Whisper モデル",
         "groq_whisper_large_v3_turbo": "リアルタイムの 216 倍速",
-        "mistral_voxtral_mini_latest": "高速多言語文字起こし"
+        "gemini_gemini_3_0_flash": "高速多言語文字起こし"
       },
       "cloud": {
         "openai_gpt_5_2": "最新のフラッグシップ推論モデル",

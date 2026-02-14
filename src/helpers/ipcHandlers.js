@@ -10,7 +10,9 @@ const AssemblyAiStreaming = require("./assemblyAiStreaming");
 const { i18nMain, changeLanguage } = require("./i18nMain");
 const DeepgramStreaming = require("./deepgramStreaming");
 
-const MISTRAL_TRANSCRIPTION_URL = "https://api.mistral.ai/v1/audio/transcriptions";
+const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
+const GEMINI_TRANSCRIPTION_PROMPT =
+  "Transcribe the provided audio accurately and return only the spoken text.";
 
 class IPCHandlers {
   constructor(managers) {
@@ -759,42 +761,96 @@ class IPCHandlers {
       return this.environmentManager.saveMistralKey(key);
     });
 
-    // Proxy Mistral transcription through main process to avoid CORS
+    // Proxy Gemini transcription through main process to avoid CORS and keep API key off renderer.
     ipcMain.handle(
-      "proxy-mistral-transcription",
-      async (event, { audioBuffer, model, language, contextBias }) => {
-        const apiKey = this.environmentManager.getMistralKey();
+      "proxy-gemini-transcription",
+      async (event, { audioBuffer, mimeType, model, language, dictionaryPrompt }) => {
+        const apiKey = this.environmentManager.getGeminiKey();
         if (!apiKey) {
-          throw new Error("Mistral API key not configured");
+          throw new Error("Gemini API key not configured");
         }
 
-        const formData = new FormData();
-        const audioBlob = new Blob([Buffer.from(audioBuffer)], { type: "audio/webm" });
-        formData.append("file", audioBlob, "audio.webm");
-        formData.append("model", model || "voxtral-mini-latest");
+        let audioNodeBuffer;
+        if (Buffer.isBuffer(audioBuffer)) {
+          audioNodeBuffer = audioBuffer;
+        } else if (audioBuffer instanceof ArrayBuffer) {
+          audioNodeBuffer = Buffer.from(audioBuffer);
+        } else if (ArrayBuffer.isView(audioBuffer)) {
+          audioNodeBuffer = Buffer.from(
+            audioBuffer.buffer,
+            audioBuffer.byteOffset,
+            audioBuffer.byteLength
+          );
+        } else {
+          throw new Error("Invalid audio payload for Gemini transcription");
+        }
+
+        const resolvedMimeType = typeof mimeType === "string" && mimeType.trim() ? mimeType : "audio/webm";
+        const resolvedModel =
+          typeof model === "string" && model.trim() ? model.trim() : "gemini-3.0-flash";
+
+        const promptInstructions = [GEMINI_TRANSCRIPTION_PROMPT];
         if (language && language !== "auto") {
-          formData.append("language", language);
+          promptInstructions.push(`The spoken language is likely ${language}.`);
         }
-        if (contextBias && contextBias.length > 0) {
-          for (const token of contextBias) {
-            formData.append("context_bias", token);
-          }
+        if (dictionaryPrompt && typeof dictionaryPrompt === "string" && dictionaryPrompt.trim()) {
+          promptInstructions.push(`Prefer these terms when heard: ${dictionaryPrompt.trim()}.`);
         }
 
-        const response = await fetch(MISTRAL_TRANSCRIPTION_URL, {
+        const requestBody = {
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: promptInstructions.join(" ") },
+                {
+                  inlineData: {
+                    mimeType: resolvedMimeType,
+                    data: audioNodeBuffer.toString("base64"),
+                  },
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0,
+          },
+        };
+
+        const endpoint = `${GEMINI_API_BASE}/models/${encodeURIComponent(
+          resolvedModel
+        )}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+        const response = await fetch(endpoint, {
           method: "POST",
           headers: {
-            "x-api-key": apiKey,
+            "Content-Type": "application/json",
           },
-          body: formData,
+          body: JSON.stringify(requestBody),
         });
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`Mistral API Error: ${response.status} ${errorText}`);
+          throw new Error(`Gemini API Error: ${response.status} ${errorText}`);
         }
 
-        return await response.json();
+        const payload = await response.json();
+        const parts = payload?.candidates?.[0]?.content?.parts;
+        const text = Array.isArray(parts)
+          ? parts
+              .map((part) => (typeof part?.text === "string" ? part.text : ""))
+              .join(" ")
+              .trim()
+          : "";
+
+        if (!text) {
+          const finishReason = payload?.candidates?.[0]?.finishReason;
+          throw new Error(
+            `Gemini transcription returned empty text${finishReason ? ` (${finishReason})` : ""}`
+          );
+        }
+
+        return { text };
       }
     );
 
